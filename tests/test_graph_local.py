@@ -8,23 +8,23 @@ def callers(service, max_hops=3):
     return upstream_callers(service, SERVICES, CALLS, max_hops)
 
 
-def test_payment_fino_a_3_passi():
+def test_payment_up_to_three_hops():
     assert callers("payment") == {"order": 1, "gateway": 2, "notification": 2, "inventory": 3}
 
 
-def test_limite_di_passi():
+def test_hop_limit():
     assert callers("payment", max_hops=2) == {"order": 1, "gateway": 2, "notification": 2}
 
 
-def test_ciclo_non_include_il_servizio_di_partenza():
-    # order -> notification -> order è un ciclo: order non deve comparire tra i propri chiamanti
+def test_cycle_does_not_include_start_service():
+    # order -> notification -> order is a cycle: order must not appear among its own callers
     assert "order" not in callers("order")
 
 
-def test_gateway_non_ha_chiamanti():
+def test_gateway_has_no_callers():
     assert callers("gateway") == {}
 
 
-def test_servizio_sconosciuto():
+def test_unknown_service_is_rejected():
     with pytest.raises(ValueError):
         callers("shipping")

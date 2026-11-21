@@ -1,33 +1,33 @@
-"""Ricerca dei chiamanti a monte sul grafo, in puro Python (senza Neo4j).
+"""Upstream caller lookup on the service graph, in plain Python (no Neo4j).
 
-Serve finché Neo4j non è disponibile, e dopo come "risposta attesa" per verificare le query Cypher.
+Used until Neo4j is available, and afterwards as the expected answer to verify the Cypher queries.
 """
 from collections import deque
 
 
 def upstream_callers(service, services, calls, max_hops=3):
-    """Restituisce i servizi che chiamano `service`, direttamente o indirettamente.
+    """Return the services that call `service`, directly or indirectly.
 
-    Risultato: dizionario {servizio: distanza}, ordinato per distanza e poi per nome.
-    Distanza 1 = chiamante diretto, 2 = chiamante del chiamante, e così via fino a `max_hops`.
-    Il servizio di partenza non compare mai, anche se un ciclo ci riporta a lui.
+    Result: dict {service: distance}, sorted by distance, then by name.
+    Distance 1 = direct caller, 2 = caller of a caller, and so on up to `max_hops`.
+    The start service is never included, even if a cycle leads back to it.
     """
     if service not in services:
-        raise ValueError(f"Servizio sconosciuto: {service!r}")
+        raise ValueError(f"Unknown service: {service!r}")
 
-    # Per ogni servizio, l'elenco di chi lo chiama (le frecce lette al contrario).
+    # For each service, the list of its callers (edges read in reverse).
     callers_of = {}
     for caller, callee in calls:
         callers_of.setdefault(callee, []).append(caller)
 
-    # Visita in ampiezza (BFS): prima tutti i servizi a distanza 1, poi a distanza 2, ...
-    # così ogni servizio riceve la distanza MINIMA, e chi è già visitato non si rivisita (gestione dei cicli).
+    # Breadth-first search: all services at distance 1 first, then distance 2, ...
+    # Each service gets its SHORTEST distance; visited services are skipped (cycle handling).
     distances = {service: 0}
     queue = deque([service])
     while queue:
         current = queue.popleft()
         if distances[current] == max_hops:
-            continue  # limite di passi raggiunto: non si va oltre
+            continue  # hop limit reached: do not expand further
         for caller in callers_of.get(current, []):
             if caller not in distances:
                 distances[caller] = distances[current] + 1

@@ -1,17 +1,17 @@
-"""Topologia sintetica di IncidentIQ: i servizi e chi chiama chi."""
+"""Synthetic IncidentIQ topology: the services and who calls whom."""
 
-# I 5 servizi del negozio online di prova.
+# The 5 services of the sample online shop.
 SERVICES = ["gateway", "order", "payment", "inventory", "notification"]
 
-# Ogni coppia (A, B) significa: A chiama B (in Neo4j: (A)-[:CALLS]->(B)).
-# Se B si guasta, A può risentirne: il guasto "risale" da B verso A.
+# Each pair (A, B) means: A calls B (in Neo4j: (A)-[:CALLS]->(B)).
+# If B fails, A may be affected: failures propagate upstream, from B to A.
 CALLS = [
-    ("gateway", "order"),            # il cliente crea un ordine
-    ("gateway", "inventory"),        # il cliente controlla la disponibilità
-    ("order", "payment"),            # l'ordine richiede il pagamento
-    ("order", "inventory"),          # l'ordine prenota la merce
-    ("order", "notification"),       # conferma d'ordine via email
-    ("payment", "notification"),     # ricevuta di pagamento
-    ("inventory", "notification"),   # avviso di scorte basse
-    ("notification", "order"),       # legge i dettagli dell'ordine per l'email -> CICLO
+    ("gateway", "order"),            # customer places an order
+    ("gateway", "inventory"),        # customer checks availability
+    ("order", "payment"),            # order requests payment
+    ("order", "inventory"),          # order reserves stock
+    ("order", "notification"),       # order confirmation email
+    ("payment", "notification"),     # payment receipt
+    ("inventory", "notification"),   # low-stock alert
+    ("notification", "order"),       # reads order details for the email -> CYCLE
 ]
