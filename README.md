@@ -25,3 +25,14 @@ Fully offline, using synthetic data.
 | Python | 3.12.7 |
 
 ## Installation
+python -m venv .venv
+.venv\Scripts\activate.bat
+python -m pip install -r requirements.txt
+
+## Usage
+Generate the synthetic dataset:
+python -m data.generate
+
+Run the tests:
+python -m pytest
+
