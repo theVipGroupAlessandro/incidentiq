@@ -1,0 +1,317 @@
+[
+  {
+    "id": "INC-001",
+    "title": "Payment database connection pool exhausted",
+    "date": "2026-05-04",
+    "status": "resolved",
+    "service": "payment",
+    "failure_type": "db_pool_exhaustion",
+    "affected_services": [
+      "payment",
+      "order",
+      "gateway",
+      "notification"
+    ],
+    "symptoms": "payment logged 'Database connection pool exhausted' and requests waited for a free connection. order reported timeouts and 5xx errors calling payment. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order.",
+    "cause": "A traffic spike from a marketing campaign used all 50 connections.",
+    "mitigation": "Scaled out payment and enabled queueing at the gateway."
+  },
+  {
+    "id": "INC-002",
+    "title": "Payment timeouts calling payment-provider.example.com",
+    "date": "2026-05-13",
+    "status": "resolved",
+    "service": "payment",
+    "failure_type": "api_timeout",
+    "affected_services": [
+      "payment",
+      "order"
+    ],
+    "symptoms": "payment requests to payment-provider.example.com timed out and were retried. order reported timeouts and 5xx errors calling payment.",
+    "cause": "payment-provider.example.com was in an unannounced maintenance window.",
+    "mitigation": "Waited for the provider to recover; added status-page monitoring."
+  },
+  {
+    "id": "INC-003",
+    "title": "Order out of memory",
+    "date": "2026-05-22",
+    "status": "resolved",
+    "service": "order",
+    "failure_type": "memory_exhaustion",
+    "affected_services": [
+      "order",
+      "gateway",
+      "notification"
+    ],
+    "symptoms": "order threw OutOfMemoryError and its container was restarted repeatedly. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order.",
+    "cause": "A memory leak in the in-process cache: entries were never evicted.",
+    "mitigation": "Restarted the service and added a size limit to the cache."
+  },
+  {
+    "id": "INC-004",
+    "title": "Payment authentication failures towards payment-provider.example.com",
+    "date": "2026-05-30",
+    "status": "resolved",
+    "service": "payment",
+    "failure_type": "auth_failure",
+    "affected_services": [
+      "payment",
+      "order"
+    ],
+    "symptoms": "payment received 401 Unauthorized responses from payment-provider.example.com. order reported timeouts and 5xx errors calling payment.",
+    "cause": "API credentials for payment-provider.example.com expired and were not rotated.",
+    "mitigation": "Rotated the credentials and added an expiry alert."
+  },
+  {
+    "id": "INC-005",
+    "title": "Order database connection pool exhausted",
+    "date": "2026-06-08",
+    "status": "resolved",
+    "service": "order",
+    "failure_type": "db_pool_exhaustion",
+    "affected_services": [
+      "order",
+      "gateway",
+      "notification"
+    ],
+    "symptoms": "order logged 'Database connection pool exhausted' and requests waited for a free connection. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order.",
+    "cause": "A slow query held connections open for minutes.",
+    "mitigation": "Killed the long-running query and added a missing index."
+  },
+  {
+    "id": "INC-006",
+    "title": "Notification timeouts calling smtp.example.com",
+    "date": "2026-06-17",
+    "status": "resolved",
+    "service": "notification",
+    "failure_type": "api_timeout",
+    "affected_services": [
+      "notification"
+    ],
+    "symptoms": "notification requests to smtp.example.com timed out and were retried.",
+    "cause": "High network latency between our data centre and smtp.example.com.",
+    "mitigation": "Network team rerouted traffic; added latency alerts."
+  },
+  {
+    "id": "INC-007",
+    "title": "Notification out of memory",
+    "date": "2026-06-26",
+    "status": "resolved",
+    "service": "notification",
+    "failure_type": "memory_exhaustion",
+    "affected_services": [
+      "notification"
+    ],
+    "symptoms": "notification threw OutOfMemoryError and its container was restarted repeatedly.",
+    "cause": "A large export loaded the whole dataset into memory.",
+    "mitigation": "Changed the export to stream data in chunks."
+  },
+  {
+    "id": "INC-008",
+    "title": "Gateway authentication failures towards auth-server.example.com",
+    "date": "2026-07-05",
+    "status": "resolved",
+    "service": "gateway",
+    "failure_type": "auth_failure",
+    "affected_services": [
+      "gateway"
+    ],
+    "symptoms": "gateway received 401 Unauthorized responses from auth-server.example.com.",
+    "cause": "The client TLS certificate used to call auth-server.example.com expired.",
+    "mitigation": "Renewed the certificate and automated renewal."
+  },
+  {
+    "id": "INC-009",
+    "title": "Inventory database connection pool exhausted",
+    "date": "2026-07-14",
+    "status": "resolved",
+    "service": "inventory",
+    "failure_type": "db_pool_exhaustion",
+    "affected_services": [
+      "inventory",
+      "gateway",
+      "order"
+    ],
+    "symptoms": "inventory logged 'Database connection pool exhausted' and requests waited for a free connection. Customers received 504 Gateway Timeout errors from the gateway. order reported timeouts and 5xx errors calling inventory.",
+    "cause": "A connection leak introduced in the latest release: connections were not returned to the pool.",
+    "mitigation": "Rolled back the release and fixed the leak."
+  },
+  {
+    "id": "INC-010",
+    "title": "Inventory timeouts calling warehouse-api.example.com",
+    "date": "2026-07-23",
+    "status": "resolved",
+    "service": "inventory",
+    "failure_type": "api_timeout",
+    "affected_services": [
+      "inventory",
+      "gateway",
+      "order",
+      "notification"
+    ],
+    "symptoms": "inventory requests to warehouse-api.example.com timed out and were retried. Customers received 504 Gateway Timeout errors from the gateway. order reported timeouts and 5xx errors calling inventory. notification reported timeouts and 5xx errors calling order.",
+    "cause": "warehouse-api.example.com rate-limited our requests after we exceeded our daily quota.",
+    "mitigation": "Requested a higher quota and added quota usage alerts."
+  },
+  {
+    "id": "INC-011",
+    "title": "Gateway out of memory",
+    "date": "2026-08-01",
+    "status": "resolved",
+    "service": "gateway",
+    "failure_type": "memory_exhaustion",
+    "affected_services": [
+      "gateway"
+    ],
+    "symptoms": "gateway threw OutOfMemoryError and its container was restarted repeatedly.",
+    "cause": "An internal queue grew without bounds while a dependency was slow.",
+    "mitigation": "Bounded the queue and added back-pressure."
+  },
+  {
+    "id": "INC-012",
+    "title": "Notification authentication failures towards smtp.example.com",
+    "date": "2026-08-10",
+    "status": "resolved",
+    "service": "notification",
+    "failure_type": "auth_failure",
+    "affected_services": [
+      "notification"
+    ],
+    "symptoms": "notification received 401 Unauthorized responses from smtp.example.com.",
+    "cause": "The token signing key was rotated without updating notification.",
+    "mitigation": "Deployed the new key and documented the rotation procedure."
+  },
+  {
+    "id": "INC-013",
+    "title": "Payment database connection pool exhausted",
+    "date": "2026-08-19",
+    "status": "resolved",
+    "service": "payment",
+    "failure_type": "db_pool_exhaustion",
+    "affected_services": [
+      "payment",
+      "order"
+    ],
+    "symptoms": "payment logged 'Database connection pool exhausted' and requests waited for a free connection. order reported timeouts and 5xx errors calling payment.",
+    "cause": "A nightly batch job opened connections in parallel with live traffic.",
+    "mitigation": "Moved the batch job to a separate connection pool."
+  },
+  {
+    "id": "INC-014",
+    "title": "Payment timeouts calling payment-provider.example.com",
+    "date": "2026-08-28",
+    "status": "resolved",
+    "service": "payment",
+    "failure_type": "api_timeout",
+    "affected_services": [
+      "payment",
+      "order",
+      "gateway",
+      "notification"
+    ],
+    "symptoms": "payment requests to payment-provider.example.com timed out and were retried. order reported timeouts and 5xx errors calling payment. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order.",
+    "cause": "DNS resolution for payment-provider.example.com failed intermittently.",
+    "mitigation": "Switched to a secondary DNS resolver and added DNS caching."
+  },
+  {
+    "id": "INC-015",
+    "title": "Inventory out of memory",
+    "date": "2026-09-06",
+    "status": "resolved",
+    "service": "inventory",
+    "failure_type": "memory_exhaustion",
+    "affected_services": [
+      "inventory",
+      "gateway",
+      "order"
+    ],
+    "symptoms": "inventory threw OutOfMemoryError and its container was restarted repeatedly. Customers received 504 Gateway Timeout errors from the gateway. order reported timeouts and 5xx errors calling inventory.",
+    "cause": "The heap limit was too small after a framework upgrade increased memory usage.",
+    "mitigation": "Raised the heap and container memory limits."
+  },
+  {
+    "id": "INC-016",
+    "title": "Inventory authentication failures towards warehouse-api.example.com",
+    "date": "2026-09-15",
+    "status": "resolved",
+    "service": "inventory",
+    "failure_type": "auth_failure",
+    "affected_services": [
+      "inventory",
+      "gateway",
+      "order"
+    ],
+    "symptoms": "inventory received 401 Unauthorized responses from warehouse-api.example.com. Customers received 504 Gateway Timeout errors from the gateway. order reported timeouts and 5xx errors calling inventory.",
+    "cause": "Clock drift on inventory hosts made tokens appear expired.",
+    "mitigation": "Fixed NTP synchronisation on the hosts."
+  },
+  {
+    "id": "INC-017",
+    "title": "Order database connection pool exhausted",
+    "date": "2026-09-24",
+    "status": "resolved",
+    "service": "order",
+    "failure_type": "db_pool_exhaustion",
+    "affected_services": [
+      "order",
+      "gateway",
+      "notification",
+      "inventory",
+      "payment"
+    ],
+    "symptoms": "order logged 'Database connection pool exhausted' and requests waited for a free connection. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order. inventory reported timeouts and 5xx errors calling notification. payment reported timeouts and 5xx errors calling notification.",
+    "cause": "A deployment doubled the worker threads, and each thread held a connection.",
+    "mitigation": "Reverted the thread count and sized workers to the pool limit."
+  },
+  {
+    "id": "INC-018",
+    "title": "Notification timeouts calling smtp.example.com",
+    "date": "2026-10-03",
+    "status": "resolved",
+    "service": "notification",
+    "failure_type": "api_timeout",
+    "affected_services": [
+      "notification",
+      "inventory",
+      "order",
+      "payment"
+    ],
+    "symptoms": "notification requests to smtp.example.com timed out and were retried. inventory reported timeouts and 5xx errors calling notification. order reported timeouts and 5xx errors calling notification. payment reported timeouts and 5xx errors calling notification.",
+    "cause": "Regional outage at smtp.example.com.",
+    "mitigation": "Failed over to the provider's secondary region."
+  },
+  {
+    "id": "INC-019",
+    "title": "Order out of memory",
+    "date": "2026-10-12",
+    "status": "resolved",
+    "service": "order",
+    "failure_type": "memory_exhaustion",
+    "affected_services": [
+      "order",
+      "gateway",
+      "notification",
+      "inventory",
+      "payment"
+    ],
+    "symptoms": "order threw OutOfMemoryError and its container was restarted repeatedly. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order. inventory reported timeouts and 5xx errors calling notification. payment reported timeouts and 5xx errors calling notification.",
+    "cause": "Processing of large attachments kept full files in memory.",
+    "mitigation": "Limited attachment size and processed files as streams."
+  },
+  {
+    "id": "INC-020",
+    "title": "Order authentication failures towards tax-api.example.com",
+    "date": "2026-10-21",
+    "status": "resolved",
+    "service": "order",
+    "failure_type": "auth_failure",
+    "affected_services": [
+      "order",
+      "gateway",
+      "notification"
+    ],
+    "symptoms": "order received 401 Unauthorized responses from tax-api.example.com. Customers received 504 Gateway Timeout errors from the gateway. notification reported timeouts and 5xx errors calling order.",
+    "cause": "The client secret for tax-api.example.com was revoked by mistake.",
+    "mitigation": "Issued a new secret and restricted who can revoke secrets."
+  }
+]
