@@ -1,0 +1,78 @@
+[
+  {
+    "id": "SCN-01",
+    "service": "payment",
+    "question": "Checkout is failing and payment shows many errors. What is the likely cause?",
+    "window": {"start": "2026-11-09T10:30:00Z", "end": "2026-11-09T11:30:00Z"},
+    "expected": {
+      "root_service": "payment",
+      "failure_type": "db_pool_exhaustion",
+      "affected_services": ["payment", "order", "gateway", "notification"],
+      "similar_incidents": ["INC-001", "INC-013"],
+      "adrs": ["ADR-001"],
+      "insufficient_evidence": false,
+      "root_log_message": "Database connection pool exhausted"
+      
+    }
+  },
+  {
+    "id": "SCN-02",
+    "service": "inventory",
+    "question": "Product availability checks are failing. What is going on with inventory?",
+    "window": {"start": "2026-11-10T14:10:00Z", "end": "2026-11-10T15:10:00Z"},
+    "expected": {
+      "root_service": "inventory",
+      "failure_type": "api_timeout",
+      "affected_services": ["inventory", "gateway", "order"],
+      "similar_incidents": ["INC-010"],
+      "adrs": ["ADR-002"],
+      "insufficient_evidence": false,
+      "root_log_message": "Request to warehouse-api.example.com timed out"
+    }
+  },
+  {
+    "id": "SCN-03",
+    "service": "order",
+    "question": "Orders cannot be placed and the order service keeps restarting. Why?",
+    "window": {"start": "2026-11-11T09:00:00Z", "end": "2026-11-11T10:00:00Z"},
+    "expected": {
+      "root_service": "order",
+      "failure_type": "memory_exhaustion",
+      "affected_services": ["order", "gateway", "notification"],
+      "similar_incidents": ["INC-003", "INC-019"],
+      "adrs": ["ADR-005"],
+      "insufficient_evidence": false,
+      "root_log_message": "OutOfMemoryError"
+    }
+  },
+  {
+    "id": "SCN-04",
+    "service": "gateway",
+    "question": "The gateway is logging errors and some customers cannot log in. What is the cause?",
+    "window": {"start": "2026-11-12T16:45:00Z", "end": "2026-11-12T17:45:00Z"},
+    "expected": {
+      "root_service": "gateway",
+      "failure_type": "auth_failure",
+      "affected_services": ["gateway"],
+      "similar_incidents": ["INC-008"],
+      "adrs": ["ADR-004"],
+      "insufficient_evidence": false,
+      "root_log_message": "Authentication to auth-server.example.com failed"
+    }
+  },
+  {
+    "id": "SCN-05",
+    "service": "inventory",
+    "question": "Inventory has been logging errors since late morning. What is the cause?",
+    "window": {"start": "2026-11-13T11:20:00Z", "end": "2026-11-13T12:20:00Z"},
+    "expected": {
+      "root_service": "inventory",
+      "failure_type": "unknown",
+      "affected_services": ["inventory", "gateway", "order"],
+      "similar_incidents": [],
+      "adrs": [],
+      "insufficient_evidence": true,
+      "root_log_message": "Checksum mismatch in stock snapshot"
+    }
+  }
+]

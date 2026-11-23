@@ -26,3 +26,15 @@ SCN-05 is an unknown-cause case: its failure type has no historical incident.
   3 s external timeout and circuit breaker after 5 failures (ADR-002).
 - ADR-003 is superseded by ADR-005 on purpose, to test that only accepted ADRs are used.
 - Noise logs are isolated business errors; some resemble real failures (e.g. slow query) as distractors.
+
+## Labelling criteria (evaluation/queries.json)
+- failure queries: incidents with the same root service and the same failure type.
+  Being only affected by a failure elsewhere does not count: affected services see symptoms
+  (timeouts, 5xx), not the failure itself.
+- symptom queries: incidents rooted in the called service that affected the reporting service.
+  No ADR when the candidate incidents have different failure types.
+- trigger queries: the incident with that specific cause.
+- ADRs: the accepted ADR governing that failure type for that service. ADR-003 (superseded) never counts.
+- none queries: nothing in the data is relevant; reported separately from Recall@5.
+- Labels were cross-checked against an independent LLM review (22/30 identical at first pass);
+  disagreements were resolved with the criteria above.
