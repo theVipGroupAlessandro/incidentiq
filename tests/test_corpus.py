@@ -1,5 +1,5 @@
 from app.corpus import load_corpus, parse_frontmatter, split_sections
-
+from data.topology import SERVICES
 
 def test_corpus_has_20_incidents_and_3_sections_per_adr():
     corpus = load_corpus()
@@ -28,3 +28,14 @@ def test_frontmatter_parser():
     metadata, body = parse_frontmatter("---\nid: ADR-9\nservices: [a, b]\nsupersedes: null\n---\n## X\ntext\n")
     assert metadata == {"id": "ADR-9", "services": ["a", "b"], "supersedes": None}
     assert split_sections(body) == {"X": "text"}
+
+def test_every_document_lists_known_services():
+    for doc in load_corpus():
+     assert isinstance(doc["services"], list), doc["doc_id"]
+     assert set(doc["services"]) <= set(SERVICES), doc["doc_id"]
+
+
+def test_malformed_list_is_rejected():
+    import pytest
+    with pytest.raises(ValueError):
+        parse_frontmatter("---\nservices: [a, b]s\n---\n## X\ntext\n")

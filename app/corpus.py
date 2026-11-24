@@ -25,7 +25,9 @@ def parse_frontmatter(markdown):
     for line in match.group(1).splitlines():
         key, _, value = line.partition(":")
         value = value.strip()
-        if value.startswith("[") and value.endswith("]"):
+        if value.startswith("[") or value.endswith("]"):
+            if not (value.startswith("[") and value.endswith("]")):
+                raise ValueError(f"Malformed list for '{key.strip()}': {value}")
             value = [item.strip() for item in value[1:-1].split(",") if item.strip()]
         elif value == "null":
             value = None

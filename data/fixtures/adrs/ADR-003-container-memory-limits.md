@@ -3,7 +3,7 @@ id: ADR-003
 title: Fixed container memory limit of 512 MiB
 status: superseded
 date: 2025-11-20
-services: [gateway, order, payment, inventory, notification]s
+services: [gateway, order, payment, inventory, notification]
 supersedes: null
 ---
 
