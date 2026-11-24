@@ -10,7 +10,7 @@ Fully offline, using synthetic data.
 - [x] Service topology and upstream caller lookup (Python, with tests)
 - [x] Synthetic data: 707 logs, 20 incidents, 5 ADRs (see docs/dataset.md)
 - [ ] Labeled evaluation queries
-- [ ] Embeddings and retrieval
+- [x] Embeddings and retrieval (in memory: BGE-small, MiniLM; log deduplication)
 - [ ] Docker Compose (Postgres + pgvector, Neo4j) — blocked: waiting for administrator rights
 - [ ] Local LLM (Ollama)
 - [ ] API (FastAPI) and UI (Streamlit)
@@ -35,4 +35,8 @@ python -m data.generate
 
 Run the tests:
 python -m pytest
+
+Try a search:
+python -m app.search_demo “payment cannot get a database connection” --model minilm
+
 
