@@ -1,0 +1,57 @@
+# IncidentIQ infrastructure: PostgreSQL + pgvector and Neo4j Community.
+#
+# Start (from the repository root):
+#   docker compose --env-file .env -f infra/docker-compose.yml up -d
+# Status and health:
+#   docker compose --env-file .env -f infra/docker-compose.yml ps
+#
+# Ports are bound to 127.0.0.1 on the Docker host, so the databases are not exposed to the network.
+# When Docker runs on a remote server, reach them through an SSH tunnel (see README).
+# No bind mounts: data lives in named volumes, schema and seed are applied by Python scripts,
+# so the same file works with a local or a remote Docker engine.
+
+name: incidentiq
+
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-15432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  neo4j:
+    image: neo4j:5.26.0-community
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
+      # Used only by the health check; must not start with NEO4J_ (that prefix is read as Neo4j config).
+      HEALTHCHECK_PASSWORD: ${NEO4J_PASSWORD}
+      # Keep memory small: the dataset is tiny and the host is shared.
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    ports:
+      - "127.0.0.1:${NEO4J_HTTP_HOST_PORT:-17474}:7474"   # browser UI
+      - "127.0.0.1:${NEO4J_BOLT_HOST_PORT:-17687}:7687"   # Bolt protocol, used by the Python driver
+    volumes:
+      - neo4j-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$${HEALTHCHECK_PASSWORD}\" 'RETURN 1' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+volumes:
+  postgres-data:
+  neo4j-data:
