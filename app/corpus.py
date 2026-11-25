@@ -60,10 +60,17 @@ def incident_documents(path=FIXTURES / "incidents.json"):
     ]
 
 
+def read_adrs(folder=FIXTURES / "adrs"):
+    """(metadata, body) for every ADR file, in ID order."""
+    adrs = []
+    for path in sorted(Path(folder).glob("ADR-*.md")):
+        adrs.append(parse_frontmatter(path.read_text(encoding="utf-8").replace("\r\n", "\n")))
+    return adrs
+
+
 def adr_documents(folder=FIXTURES / "adrs"):
     documents = []
-    for path in sorted(Path(folder).glob("ADR-*.md")):
-        metadata, body = parse_frontmatter(path.read_text(encoding="utf-8").replace("\r\n", "\n"))
+    for metadata, body in read_adrs(folder):
         for title, text in split_sections(body).items():
             documents.append({
                 "doc_id": f"{metadata['id']}#{title.lower()}",

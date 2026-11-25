@@ -28,3 +28,15 @@ def test_gateway_has_no_callers():
 def test_unknown_service_is_rejected():
     with pytest.raises(ValueError):
         callers("shipping")
+
+        
+
+def test_payment_downstream_is_notification_then_order():
+    from app.graph_local import downstream_callees
+    # payment calls notification; notification calls order; order calls inventory (and payment, the start).
+    assert downstream_callees("payment", SERVICES, CALLS) == {"notification": 1, "order": 2, "inventory": 3}
+
+
+def test_gateway_reaches_everything_downstream():
+    from app.graph_local import downstream_callees
+    assert set(downstream_callees("gateway", SERVICES, CALLS)) == {"order", "inventory", "payment", "notification"}

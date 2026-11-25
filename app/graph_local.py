@@ -35,3 +35,13 @@ def upstream_callers(service, services, calls, max_hops=3):
 
     del distances[service]
     return dict(sorted(distances.items(), key=lambda item: (item[1], item[0])))
+
+
+
+def downstream_callees(service, services, calls, max_hops=3):
+    """Return the services that `service` calls, directly or indirectly: where a cause may be.
+
+    Same breadth-first search as upstream_callers, following the edges forward.
+    """
+    reversed_calls = [(callee, caller) for caller, callee in calls]
+    return upstream_callers(service, services, reversed_calls, max_hops)
