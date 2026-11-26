@@ -109,7 +109,31 @@ def accepted_adrs_neo4j(driver, service):
         parameters_={"name": service})
     return [record["id"] for record in records]
 
+def accepted_adrs_for_services_neo4j(driver, services=None):
+    """Accepted ADRs linked (AFFECTS) to any of `services`; every accepted ADR when services is None."""
+    records, _, _ = driver.execute_query(
+        "MATCH (a:ADR {status: 'accepted'}) "
+        "WHERE $services IS NULL OR EXISTS { MATCH (a)-[:AFFECTS]->(s:Service) WHERE s.name IN $services } "
+        "RETURN a.id AS id ORDER BY id",
+        parameters_={"services": services})
+    return [record["id"] for record in records]
 
+
+class Neo4jGraph:
+    """The graph as the investigation uses it: who a service calls, and which accepted ADRs apply."""
+
+    def __init__(self, driver, max_hops=3):
+        self.driver, self.max_hops = driver, max_hops
+
+    def upstream(self, service):
+        return upstream_callers_neo4j(self.driver, service, self.max_hops)
+
+    def downstream(self, service):
+        return downstream_callees_neo4j(self.driver, service, self.max_hops)
+
+    def accepted_adrs(self, services=None):
+        return accepted_adrs_for_services_neo4j(self.driver, services)
+    
 def main():
     with neo4j_driver() as driver:
         seed(driver)
